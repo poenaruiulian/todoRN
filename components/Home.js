@@ -2,6 +2,8 @@ import {View, Text,Drawer,Colors} from 'react-native-ui-lib';
 import {ScrollView,TextInput,StyleSheet, TouchableOpacity} from 'react-native'
 import {useState} from 'react'
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Spacer from './Spacer';
@@ -31,10 +33,11 @@ function dealDeletion(id,tasks,setTasks){
             tasksC=[...tasksC,tasks[i]]
         }
     }
-    setTasks(tasksC)
+    storeData("tasks",tasksC)
+    getData("tasks").then((res)=>{setTasks(res)})
 }
 
-function dealCompletion(id,tasks,setTasks,completedTask,setCompletedTasks){
+function dealCompletion(id,tasks,setTasks,completedTasks,setCompletedTasks){
     let complTsk = {}
     for(let i=0;i<tasks.length;i++){
         if(id == tasks[i].id){
@@ -44,7 +47,9 @@ function dealCompletion(id,tasks,setTasks,completedTask,setCompletedTasks){
     }
     console.log(complTsk)
     complTsk.addedDate = GetTodayDate()
-    setCompletedTasks([...completedTask,complTsk])
+    //setCompletedTasks([...completedTask,complTsk])
+    storeData("completedTasks", [...completedTasks,complTsk])
+    getData("completedTasks").then((res)=>{setCompletedTasks(res)})
 
     let tasksC = []
     for(let i=0;i<tasks.length;i++){
@@ -52,14 +57,35 @@ function dealCompletion(id,tasks,setTasks,completedTask,setCompletedTasks){
             tasksC=[...tasksC,tasks[i]]
         }
     }
-    setTasks(tasksC)
+    storeData("tasks",tasksC)
+    getData("tasks").then((res)=>{setTasks(res)})
 }
 
+const storeData = async (key,value) => {
+    try {
+      const jsonValue = JSON.stringify(value)
+      await AsyncStorage.setItem(key, jsonValue)
+    } catch (e) {
+      alert(e)
+    }
+  }
+  
+const getData = async (key) => {
+    try {
+      const jsonValue = await AsyncStorage.getItem(key)
+      return jsonValue != null ? JSON.parse(jsonValue) : null;
+    } catch(e) {
+      alert(e)
+    }
+  }
 
 export function Home({navigation,route}){
 
-    const [tasks, setTasks] = useState(route.params?route.params.tasks:[])
-    const [completedTask, setCompletedTasks] = useState([])
+    const [tasks, setTasks] = useState([])
+   //getData("tasks").then((res)=>{setTasks(res)})
+    if(tasks[0]==null){getData("tasks").then((res)=>{setTasks(res)})}
+    const [completedTasks, setCompletedTasks] = useState([])
+    if(completedTasks[0]==null){getData("completedTasks").then((res)=>{setCompletedTasks(res)})}
     const [newTask, setNewTask] = useState({
         name:"",
         planned:"",
@@ -103,10 +129,12 @@ export function Home({navigation,route}){
 
                     />
                     <TouchableOpacity onPress={()=>{
-                        setTasks([...tasks,newTask])
+                        
+                        storeData("tasks", [...tasks,newTask] )
+                        getData("tasks").then((res)=>{setTasks(res)})
+                        //setTasks([...tasks,newTask])
                         setNewTask({name:"",planned:"",list:"",addedDate:GetTodayDate(),id:0})
                         setTaskNumber(taskNumber+1)
-
                         setValue('')
                     }}><Text>Add</Text></TouchableOpacity>
             </View>
@@ -121,15 +149,15 @@ export function Home({navigation,route}){
                                     rightItems={[
                                         {text: 'Delete',background:Colors.delete, onPress:()=> {
                                             dealDeletion(e.id,tasks,setTasks)
-                                            navigation.navigate("Home",{tasks})
+                                            //navigation.navigate("Home",{tasks})
                                             }
                                         },
                                         {text:'Edit', background:Colors.edit}
                                     ]}
                                     leftItem={
                                         {text: 'Done',background:Colors.done, onPress: () => {
-                                            dealCompletion(e.id,tasks,setTasks,completedTask,setCompletedTasks)
-                                            navigation.navigate("Home",{tasks})
+                                            dealCompletion(e.id,tasks,setTasks,completedTasks,setCompletedTasks)
+                                            //navigation.navigate("Home",{tasks})
                                             }
                                         }
                                     }
@@ -148,7 +176,11 @@ export function Home({navigation,route}){
 
             </ScrollView>
             <View style={styles.completedTasks}>
-                <TouchableOpacity onPress={()=>navigation.navigate("Tasks completed",{completedTask:completedTask})}>
+                <TouchableOpacity onPress={()=>{
+                    navigation.navigate("Tasks completed",{completedTasks:completedTasks})
+                
+                    }
+                }>
                     <Text>Completed tasks</Text>
                 </TouchableOpacity>
             </View>
@@ -157,14 +189,14 @@ export function Home({navigation,route}){
 
 }
 
-export function CompletedTasks({route,navigation}){
+export function CompletedTasks({route}){
 
 
     //completedTask
-    console.log(route.params.completedTask)
+    console.log(route.params.completedTasks)
     return (
         <View style={styles.container}>
-            {route.params.completedTask.map((e)=>
+            {route.params.completedTasks.map((e)=>
                 <View>
                     <Drawer leftItem={{text:"Undone",background:Colors.done,onPress: ()=> console.log("Undone")}}>
                         <View centerV padding-s4 bg-white style={{height: 60,width:300}}>
