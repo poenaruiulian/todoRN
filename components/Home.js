@@ -25,7 +25,34 @@ function GetTodayDate(){
     return date
 }
 
-function dealDeletion(id,tasks,setTasks){
+function dealDeletion(id,values,setValues,key){
+    
+    let valuesC = []
+    for(let i=0;i<values.length;i++){
+        if(id != values[i].id){
+            valuesC=[...valuesC,values[i]]
+        }
+    }
+    storeData(key,valuesC)
+    getData(key).then((res)=>{setValues(res)})
+    console.log(values)
+}
+
+function dealCompletion(id,tasks,setTasks){
+    
+    
+    let complTsk = {}
+    for(let i=0;i<tasks.length;i++){
+        if(id == tasks[i].id){
+            complTsk=tasks[i]
+            break
+        }
+    }
+    
+    complTsk.addedDate = GetTodayDate()
+    getData("completedTasks").then((res)=>{
+        storeData("completedTasks", [...res,complTsk])
+    })
     
     let tasksC = []
     for(let i=0;i<tasks.length;i++){
@@ -37,28 +64,27 @@ function dealDeletion(id,tasks,setTasks){
     getData("tasks").then((res)=>{setTasks(res)})
 }
 
-function dealCompletion(id,tasks,setTasks,completedTasks,setCompletedTasks){
-    let complTsk = {}
-    for(let i=0;i<tasks.length;i++){
-        if(id == tasks[i].id){
-            complTsk=tasks[i]
+function dealUncomplition(id, completedTasks, setCompletedTasks){
+    let unComplTsk = {}
+    for(let i=0;i<completedTasks.length;i++){
+        if(id == completedTasks[i].id){
+            unComplTsk=completedTasks[i]
             break
         }
     }
-    console.log(complTsk)
-    complTsk.addedDate = GetTodayDate()
-    //setCompletedTasks([...completedTask,complTsk])
-    storeData("completedTasks", [...completedTasks,complTsk])
-    getData("completedTasks").then((res)=>{setCompletedTasks(res)})
 
-    let tasksC = []
-    for(let i=0;i<tasks.length;i++){
-        if(id != tasks[i].id){
-            tasksC=[...tasksC,tasks[i]]
+    getData("tasks").then((res)=>{
+        storeData("tasks", [...res, unComplTsk])
+    })
+
+    let completedTasksC = []
+    for(let i=0;i<completedTasks.length;i++){
+        if(id != completedTasks[i].id){
+            completedTasksC=[...completedTasksC,completedTasks[i]]
         }
     }
-    storeData("tasks",tasksC)
-    getData("tasks").then((res)=>{setTasks(res)})
+    storeData("completedTasks", completedTasksC)
+    getData("completedTasks").then((res)=>{setCompletedTasks(res)})
 }
 
 const storeData = async (key,value) => {
@@ -68,8 +94,14 @@ const storeData = async (key,value) => {
     } catch (e) {
       alert(e)
     }
-  }
-  
+}
+const storeTaskId = async(key,value) =>{
+    try{
+        await AsyncStorage.setItem(key, String(value))
+    } catch (e) {
+        alert(e)
+    }
+}
 const getData = async (key) => {
     try {
       const jsonValue = await AsyncStorage.getItem(key)
@@ -77,15 +109,20 @@ const getData = async (key) => {
     } catch(e) {
       alert(e)
     }
-  }
+}
+const getTaskId = async (key) =>{
+    try{
+        const value = await AsyncStorage.getItem(key)
+        return value!=null ? value : 0 
+    } catch(e) {
+        alert(e)
+    }
+}
 
-export function Home({navigation,route}){
+export function Home({navigation}){
 
     const [tasks, setTasks] = useState([])
-   //getData("tasks").then((res)=>{setTasks(res)})
     if(tasks[0]==null){getData("tasks").then((res)=>{setTasks(res)})}
-    const [completedTasks, setCompletedTasks] = useState([])
-    if(completedTasks[0]==null){getData("completedTasks").then((res)=>{setCompletedTasks(res)})}
     const [newTask, setNewTask] = useState({
         name:"",
         planned:"",
@@ -94,6 +131,7 @@ export function Home({navigation,route}){
         id:0
     })
     const [taskNumber, setTaskNumber] = useState(0)
+    if(taskNumber == 0){getTaskId("taskID").then((res)=>{setTaskNumber(Number(res))})}
 
     const [value, setValue] = useState('')
 
@@ -134,7 +172,8 @@ export function Home({navigation,route}){
                         getData("tasks").then((res)=>{setTasks(res)})
                         //setTasks([...tasks,newTask])
                         setNewTask({name:"",planned:"",list:"",addedDate:GetTodayDate(),id:0})
-                        setTaskNumber(taskNumber+1)
+                        storeTaskId("taskID",taskNumber+1)
+                        getData("taskID").then((res)=>{setTaskNumber(Number(res))})
                         setValue('')
                     }}><Text>Add</Text></TouchableOpacity>
             </View>
@@ -148,7 +187,7 @@ export function Home({navigation,route}){
                                 <Drawer
                                     rightItems={[
                                         {text: 'Delete',background:Colors.delete, onPress:()=> {
-                                            dealDeletion(e.id,tasks,setTasks)
+                                            dealDeletion(e.id,tasks,setTasks,"tasks")
                                             //navigation.navigate("Home",{tasks})
                                             }
                                         },
@@ -156,7 +195,7 @@ export function Home({navigation,route}){
                                     ]}
                                     leftItem={
                                         {text: 'Done',background:Colors.done, onPress: () => {
-                                            dealCompletion(e.id,tasks,setTasks,completedTasks,setCompletedTasks)
+                                            dealCompletion(e.id,tasks,setTasks)
                                             //navigation.navigate("Home",{tasks})
                                             }
                                         }
@@ -177,8 +216,7 @@ export function Home({navigation,route}){
             </ScrollView>
             <View style={styles.completedTasks}>
                 <TouchableOpacity onPress={()=>{
-                    navigation.navigate("Tasks completed",{completedTasks:completedTasks})
-                
+                    navigation.push("Tasks completed")
                     }
                 }>
                     <Text>Completed tasks</Text>
@@ -189,24 +227,42 @@ export function Home({navigation,route}){
 
 }
 
-export function CompletedTasks({route}){
+export function CompletedTasks({navigation}){
 
 
-    //completedTask
-    console.log(route.params.completedTasks)
+    const [completedTasks, setCompletedTasks] = useState([])
+    if(completedTasks[0]==null){getData("completedTasks").then((res)=>{setCompletedTasks(res)})}
+    
     return (
         <View style={styles.container}>
-            {route.params.completedTasks.map((e)=>
-                <View>
-                    <Drawer leftItem={{text:"Undone",background:Colors.done,onPress: ()=> console.log("Undone")}}>
-                        <View centerV padding-s4 bg-white style={{height: 60,width:300}}>
-                            <Text text70>{e.name}</Text>
-                        </View>
-                    </Drawer>
-            
-                    <Spacer height={15}/>
-                </View>
-            )}
+            <ScrollView showsVerticalScrollIndicator={false}>
+                {completedTasks.map((e)=>
+                    <View>
+                        <Drawer leftItem={
+                                    {text:"Undone",background:Colors.done,onPress: ()=> {
+                                        dealUncomplition(e.id,completedTasks,setCompletedTasks)
+                                    }}
+                                }
+                                rightItems={
+                                    [{text:"Delete", background:Colors.delete, onPress: ()=>{
+                                        dealDeletion(e.id,completedTasks,setCompletedTasks,"completedTasks")
+                                    }}]
+                                }
+                        >
+                            <View centerV padding-s4 bg-white style={{height: 60,width:300}}>
+                                <Text text70>{e.name}</Text>
+                            </View>
+                        </Drawer>
+                
+                        <Spacer height={15}/>
+                    </View>
+                )}
+            </ScrollView>
+            <View style={styles.completedTasks}>
+                <TouchableOpacity onPress={()=>{navigation.push("Home")}}>
+                    <Text>Home</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     )
 }
@@ -214,9 +270,9 @@ export function CompletedTasks({route}){
 export default function HomeNavigation(){
 
     return(
-        <Stack.Navigator navigationOptions={{gestureEnabled: false}}>
-            <Stack.Screen name="Home" component={Home} options={{headerShown:false}}/>
-            <Stack.Screen name="Tasks completed" component={CompletedTasks} options={{headerShown:false}}/>
+        <Stack.Navigator>
+            <Stack.Screen name="Home" component={Home} options={{headerShown:false,gestureEnabled: false}}/>
+            <Stack.Screen name="Tasks completed" component={CompletedTasks} options={{headerShown:false,gestureEnabled: false}}/>
         </Stack.Navigator>
     )
 
