@@ -25,6 +25,7 @@ function GetTodayDate(){
     return date
 }
 
+
 function dealDeletion(id,values,setValues,key){
     
     let valuesC = []
@@ -37,9 +38,7 @@ function dealDeletion(id,values,setValues,key){
     getData(key).then((res)=>{setValues(res)})
     console.log(values)
 }
-
 function dealCompletion(id,tasks,setTasks){
-    
     
     let complTsk = {}
     for(let i=0;i<tasks.length;i++){
@@ -63,7 +62,6 @@ function dealCompletion(id,tasks,setTasks){
     storeData("tasks",tasksC)
     getData("tasks").then((res)=>{setTasks(res)})
 }
-
 function dealUncomplition(id, completedTasks, setCompletedTasks){
     let unComplTsk = {}
     for(let i=0;i<completedTasks.length;i++){
@@ -86,6 +84,7 @@ function dealUncomplition(id, completedTasks, setCompletedTasks){
     storeData("completedTasks", completedTasksC)
     getData("completedTasks").then((res)=>{setCompletedTasks(res)})
 }
+
 
 const storeData = async (key,value) => {
     try {
@@ -123,6 +122,7 @@ export function Home({navigation}){
 
     const [tasks, setTasks] = useState([])
     if(tasks[0]==null){getData("tasks").then((res)=>{setTasks(res)})}
+
     const [newTask, setNewTask] = useState({
         name:"",
         planned:"",
@@ -130,22 +130,18 @@ export function Home({navigation}){
         addedDate:GetTodayDate(),
         id:0
     })
+
     const [taskNumber, setTaskNumber] = useState(0)
     if(taskNumber == 0){getTaskId("taskID").then((res)=>{setTaskNumber(Number(res))})}
 
     const [value, setValue] = useState('')
 
-    
     return (
         <View style={styles.container}>
             <View style={styles.headerAddTask}>
                     <TextInput style={styles.addTask}
-                
                         placeholder="Add task"
-
                         value={value}
-
-                        
                         onChangeText={
                             text =>
                             {
@@ -157,14 +153,8 @@ export function Home({navigation}){
                                     addedDate:newTask.addedDate,
                                     id:taskNumber+1
                                 })
-                                
-                                
-                            }
-
-                            
+                            } 
                         }
-
-
                     />
                     <TouchableOpacity onPress={()=>{
                         
@@ -188,7 +178,6 @@ export function Home({navigation}){
                                     rightItems={[
                                         {text: 'Delete',background:Colors.delete, onPress:()=> {
                                             dealDeletion(e.id,tasks,setTasks,"tasks")
-                                            //navigation.navigate("Home",{tasks})
                                             }
                                         },
                                         {text:'Edit', background:Colors.edit}
@@ -196,7 +185,6 @@ export function Home({navigation}){
                                     leftItem={
                                         {text: 'Done',background:Colors.done, onPress: () => {
                                             dealCompletion(e.id,tasks,setTasks)
-                                            //navigation.navigate("Home",{tasks})
                                             }
                                         }
                                     }
