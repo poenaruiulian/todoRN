@@ -25,6 +25,7 @@ function GetTodayDate(){
     return date
 }
 
+
 function dealDeletion(id,values,setValues,key){
     
     let valuesC = []
@@ -37,9 +38,7 @@ function dealDeletion(id,values,setValues,key){
     getData(key).then((res)=>{setValues(res)})
     console.log(values)
 }
-
 function dealCompletion(id,tasks,setTasks){
-    
     
     let complTsk = {}
     for(let i=0;i<tasks.length;i++){
@@ -63,7 +62,6 @@ function dealCompletion(id,tasks,setTasks){
     storeData("tasks",tasksC)
     getData("tasks").then((res)=>{setTasks(res)})
 }
-
 function dealUncomplition(id, completedTasks, setCompletedTasks){
     let unComplTsk = {}
     for(let i=0;i<completedTasks.length;i++){
@@ -87,6 +85,7 @@ function dealUncomplition(id, completedTasks, setCompletedTasks){
     getData("completedTasks").then((res)=>{setCompletedTasks(res)})
 }
 
+
 const storeData = async (key,value) => {
     try {
       const jsonValue = JSON.stringify(value)
@@ -105,7 +104,7 @@ const storeTaskId = async(key,value) =>{
 const getData = async (key) => {
     try {
       const jsonValue = await AsyncStorage.getItem(key)
-      return jsonValue != null ? JSON.parse(jsonValue) : null;
+      return jsonValue != null ? JSON.parse(jsonValue) : [];
     } catch(e) {
       alert(e)
     }
@@ -122,7 +121,13 @@ const getTaskId = async (key) =>{
 export function Home({navigation}){
 
     const [tasks, setTasks] = useState([])
-    if(tasks[0]==null){getData("tasks").then((res)=>{setTasks(res)})}
+    if(tasks[0]==null){
+        getData("tasks").then((res)=>{
+            if(res[0]!=null){setTasks(res)}
+            console.log(res)
+        })
+    }
+
     const [newTask, setNewTask] = useState({
         name:"",
         planned:"",
@@ -130,22 +135,18 @@ export function Home({navigation}){
         addedDate:GetTodayDate(),
         id:0
     })
+
     const [taskNumber, setTaskNumber] = useState(0)
     if(taskNumber == 0){getTaskId("taskID").then((res)=>{setTaskNumber(Number(res))})}
 
     const [value, setValue] = useState('')
 
-    
     return (
         <View style={styles.container}>
             <View style={styles.headerAddTask}>
                     <TextInput style={styles.addTask}
-                
                         placeholder="Add task"
-
                         value={value}
-
-                        
                         onChangeText={
                             text =>
                             {
@@ -157,14 +158,8 @@ export function Home({navigation}){
                                     addedDate:newTask.addedDate,
                                     id:taskNumber+1
                                 })
-                                
-                                
-                            }
-
-                            
+                            } 
                         }
-
-
                     />
                     <TouchableOpacity onPress={()=>{
                         
@@ -177,18 +172,17 @@ export function Home({navigation}){
                         setValue('')
                     }}><Text>Add</Text></TouchableOpacity>
             </View>
-            <ScrollView contentContainerStyle={styles.allTasks}>
+            <ScrollView contentContainerStyle={styles.allTasks} showsVerticalScrollIndicator={false}>
 
                 {tasks.map((e)=>{
                         
                         return (
                             
-                            <View>
+                            <View key={e.id}>
                                 <Drawer
                                     rightItems={[
                                         {text: 'Delete',background:Colors.delete, onPress:()=> {
                                             dealDeletion(e.id,tasks,setTasks,"tasks")
-                                            //navigation.navigate("Home",{tasks})
                                             }
                                         },
                                         {text:'Edit', background:Colors.edit}
@@ -196,7 +190,6 @@ export function Home({navigation}){
                                     leftItem={
                                         {text: 'Done',background:Colors.done, onPress: () => {
                                             dealCompletion(e.id,tasks,setTasks)
-                                            //navigation.navigate("Home",{tasks})
                                             }
                                         }
                                     }
@@ -231,13 +224,17 @@ export function CompletedTasks({navigation}){
 
 
     const [completedTasks, setCompletedTasks] = useState([])
-    if(completedTasks[0]==null){getData("completedTasks").then((res)=>{setCompletedTasks(res)})}
+    if(completedTasks[0]==null){
+        getData("completedTasks").then((res)=>{
+            if(res[0]!=null){setCompletedTasks(res)}
+        })
+    }
     
     return (
         <View style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 {completedTasks.map((e)=>
-                    <View>
+                    <View key={e.id}>
                         <Drawer leftItem={
                                     {text:"Undone",background:Colors.done,onPress: ()=> {
                                         dealUncomplition(e.id,completedTasks,setCompletedTasks)
