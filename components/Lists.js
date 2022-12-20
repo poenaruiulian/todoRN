@@ -20,7 +20,14 @@ Colors.loadColors({
 
 const Stack = createNativeStackNavigator()
 
+function GetTodayDate(){
+  const day = new Date().getDate()
+  const month = new Date().getMonth()+1
+  const year = new Date().getFullYear()
 
+  const date = {day,month,year}
+  return date
+}
 
 const storeData = async (key,value) => {
   try {
@@ -37,6 +44,13 @@ const storeListId = async(key,value) =>{
       alert(e)
   }
 }
+const storeTaskId = async(key,value) =>{
+  try{
+      await AsyncStorage.setItem(key, String(value))
+  } catch (e) {
+      alert(e)
+  }
+}
 const getData = async (key) => {
   try {
     const jsonValue = await AsyncStorage.getItem(key)
@@ -46,6 +60,14 @@ const getData = async (key) => {
   }
 }
 const getListId = async (key) =>{
+  try{
+      const value = await AsyncStorage.getItem(key)
+      return value!=null ? value : 0 
+  } catch(e) {
+      alert(e)
+  }
+}
+const getTaskId = async (key) =>{
   try{
       const value = await AsyncStorage.getItem(key)
       return value!=null ? value : 0 
@@ -103,6 +125,7 @@ const ColorPicker = ({display, id, setLists, setVisibility, name}) => {
   )
 }
 
+
 function dealDeletion(id,values,setValues,key){
     
   let valuesC = []
@@ -113,13 +136,166 @@ function dealDeletion(id,values,setValues,key){
   }
   storeData(key,valuesC)
   getData(key).then((res)=>{setValues(res)})
-  console.log(values)
+}
+function dealCompletion(id,tasks,setTasks){
+    
+  let complTsk = {}
+  for(let i=0;i<tasks.length;i++){
+      if(id == tasks[i].id){
+          complTsk=tasks[i]
+          break
+      }
+  }
+  
+  complTsk.addedDate = GetTodayDate()
+  getData("completedTasks").then((res)=>{
+      storeData("completedTasks", [...res,complTsk])
+  })
+  
+  let tasksC = []
+  for(let i=0;i<tasks.length;i++){
+      if(id != tasks[i].id){
+          tasksC=[...tasksC,tasks[i]]
+      }
+  }
+  storeData("tasks",tasksC)
+  getData("tasks").then((res)=>{setTasks(res)})
+}
+function dealListDeletion(id,lists,setLists,key){
+  let listName = ""
+  for(let i=0;i<lists.length;i++){
+    if(lists[i].id == id){
+      listName = lists[i].name
+      break
+    }
+  }
+
+  getData("tasks").then((res)=>{
+    let tasksC = []
+    for(let i = 0;i<res.length;i++){
+      if(res[i].list != listName){
+        tasksC=[...tasksC,res[i]]
+      }
+    }
+    storeData("tasks",tasksC)
+  })
+
+  let valuesC = []
+  for(let i=0;i<lists.length;i++){
+      if(id != lists[i].id){
+          valuesC=[...valuesC,lists[i]]
+      }
+  }
+  storeData(key,valuesC)
+  getData(key).then((res)=>{setLists(res)})
 }
 
 
+export function SpecificList({route,navigation}){
 
+  const [tasks, setTasks] = useState([])
+    if(tasks[0]==null){
+        getData("tasks").then((res)=>{
 
-export function Lists() {
+            if(res[0]!=null){setTasks(res)}
+            console.log(res)
+        })
+    }
+
+    const [newTask, setNewTask] = useState({
+        name:"",
+        planned:"",
+        list:"",
+        addedDate:GetTodayDate(),
+        id:0
+    })
+
+    const [taskNumber, setTaskNumber] = useState(0)
+    if(taskNumber == 0){getTaskId("taskID").then((res)=>{setTaskNumber(Number(res))})}
+
+    const [value, setValue] = useState('')
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+          <TouchableOpacity onPress={()=>{navigation.navigate("Lists")}}>
+            <Text style={{fontSize:24}}>Back</Text>
+          </TouchableOpacity>
+          <Text style={{fontSize:24, color:route.params.color}}>{route.params.name}</Text>
+      </View>
+      <Spacer height={40}/>
+      <View style={styles.headerAddTask}>
+                    <TextInput style={styles.addTask}
+                        placeholder="Add task"
+                        value={value}
+                        onChangeText={
+                            text =>
+                            {
+                                setValue(text)
+                                setNewTask({
+                                    name:text,
+                                    planned:"",
+                                    list:route.params.name,
+                                    addedDate:newTask.addedDate,
+                                    id:taskNumber+1
+                                })
+                            } 
+                        }
+                    />
+                    <TouchableOpacity onPress={()=>{
+                        
+                        storeData("tasks", [...tasks,newTask] )
+                        getData("tasks").then((res)=>{setTasks(res)})
+                        //setTasks([...tasks,newTask])
+                        setNewTask({name:"",planned:"",list:"",addedDate:GetTodayDate(),id:0})
+                        storeTaskId("taskID",taskNumber+1)
+                        getData("taskID").then((res)=>{setTaskNumber(Number(res))})
+                        setValue('')
+                    }}><Text>Add</Text></TouchableOpacity>
+      </View>
+      <Spacer height={40}/>
+      <ScrollView contentContainerStyle={styles.allTasks} showsVerticalScrollIndicator={false}>
+
+        {tasks.map((e)=>{
+                
+                if(e.list == route.params.name){
+                  return (
+                      
+                      <View key={e.id}>
+                          <Drawer
+                              rightItems={[
+                                  {text: 'Delete',background:Colors.delete, onPress:()=> {
+                                      dealDeletion(e.id,tasks,setTasks,"tasks")
+                                      }
+                                  },
+                                  {text:'Edit', background:Colors.edit}
+                              ]}
+                              leftItem={
+                                  {text: 'Done',background:Colors.done, onPress: () => {
+                                      dealCompletion(e.id,tasks,setTasks)
+                                      }
+                                  }
+                              }
+                              
+                          >
+                              <View centerV padding-s4 bg-white style={{height: 60,width:300}}>
+                                  <Text text70>{e.name}</Text>
+                              </View>
+                              
+                          </Drawer>
+
+                          <Spacer height={15}/>
+                      </View>
+                  )
+                }
+        })}
+
+      </ScrollView>
+    </View>
+  )
+}
+
+export function Lists({navigation}) {
 
   const [lists, setLists] = useState([])
   if(lists[0]==null){
@@ -182,7 +358,7 @@ export function Lists() {
                                 <Drawer
                                     rightItems={[
                                       {text: 'Delete',background:Colors.delete, onPress:()=> {
-                                        dealDeletion(e.id,lists,setLists,"lists")
+                                        dealListDeletion(e.id,lists,setLists,"lists")
                                         }
                                     },
                                         {text:'Edit', background:Colors.edit, onPress: ()=>{
@@ -196,7 +372,12 @@ export function Lists() {
                                         }}
                                     ]}
                                     leftItem={
-                                        {text: 'Open',background:Colors.open}
+                                        {text: 'Open',background:Colors.open, onPress: ()=>{
+                                          navigation.navigate("Specific List",{
+                                            name:e.name,
+                                            color:e.color
+                                          })
+                                        }}
                                     }
                                     
                                 >
@@ -226,6 +407,7 @@ export default function ListsNavigation(){
   return (
     <Stack.Navigator>
       <Stack.Screen name="Lists" component={Lists} options={{headerShown:false,gestureEnabled: false}}/>
+      <Stack.Screen name="Specific List" component={SpecificList} options={{headerShown:false,gestureEnabled: false}}/>
     </Stack.Navigator>
   )
 }
@@ -236,6 +418,12 @@ const styles = StyleSheet.create({
     flex:1,
     alignItems:'center',
     marginTop:50,
+  },
+
+  header:{
+    flexDirection:"row",
+    justifyContent:'space-evenly',
+    width:'60%'
   },
 
   headerAddList:{
@@ -262,5 +450,17 @@ const styles = StyleSheet.create({
     height:"30%",
     alignItems:'center',
   },
+
+  headerAddTask:{
+    width:'100%',
+    flexDirection:"row",
+    justifyContent:'space-evenly'
+  },
+
+  addTask:{
+      width:"70%",
+      borderBottomWidth:2,
+
+  }
 })
 

@@ -1,5 +1,5 @@
-import {View, Text,Drawer,Colors} from 'react-native-ui-lib';
-import {ScrollView,TextInput,StyleSheet, TouchableOpacity} from 'react-native'
+import {View, Text, Drawer, Colors} from 'react-native-ui-lib';
+import { ScrollView,TextInput,StyleSheet, TouchableOpacity} from 'react-native'
 import {useState} from 'react'
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Spacer from './Spacer';
+import Chip from './Chip';
 
 const Stack = createNativeStackNavigator()
 
@@ -118,20 +119,22 @@ const getTaskId = async (key) =>{
     }
 }
 
+
 export function Home({navigation}){
 
     const [tasks, setTasks] = useState([])
-    if(tasks[0]==null){
         getData("tasks").then((res)=>{
-            if(res[0]!=null){setTasks(res)}
+            console.log(res,"\n",tasks)
+            if(res[0]!=null && tasks[0]==null){setTasks(res)}
+            else if(res.length!=tasks.length){setTasks(res)}
             console.log(res)
         })
-    }
+    
 
     const [newTask, setNewTask] = useState({
         name:"",
         planned:"",
-        list:"",
+        list:"None",
         addedDate:GetTodayDate(),
         id:0
     })
@@ -154,7 +157,7 @@ export function Home({navigation}){
                                 setNewTask({
                                     name:text,
                                     planned:"",
-                                    list:"",
+                                    list:"None",
                                     addedDate:newTask.addedDate,
                                     id:taskNumber+1
                                 })
@@ -172,7 +175,8 @@ export function Home({navigation}){
                         setValue('')
                     }}><Text>Add</Text></TouchableOpacity>
             </View>
-            <ScrollView contentContainerStyle={styles.allTasks} showsVerticalScrollIndicator={false}>
+            <Spacer height={40}/>
+            <ScrollView ontentContainerStyle={styles.allTasks}  showsVerticalScrollIndicator={false}>
 
                 {tasks.map((e)=>{
                         
@@ -199,12 +203,19 @@ export function Home({navigation}){
                                         <Text text70>{e.name}</Text>
                                     </View>
                                     
+                                    
                                 </Drawer>
+                                <Spacer height={5}/>
+                                <View style={styles.chips}>
+                                    <Chip name={e.list}/>
+                                </View>
 
                                 <Spacer height={15}/>
                             </View>
                         )
                 })}
+
+               <Spacer height={50}/>
 
             </ScrollView>
             <View style={styles.completedTasks}>
@@ -250,6 +261,11 @@ export function CompletedTasks({navigation}){
                                 <Text text70>{e.name}</Text>
                             </View>
                         </Drawer>
+
+                        <Spacer height={5}/>
+                        <View style={styles.chips}>
+                            <Chip name={e.list}/>
+                        </View>
                 
                         <Spacer height={15}/>
                     </View>
@@ -283,16 +299,12 @@ const styles = StyleSheet.create({
         marginTop:50,
     },
 
-    headerAddTask:{
-        width:'100%',
-        flexDirection:"row",
-        justifyContent:'space-evenly'
-    },
-
     completedTasks:{
         width:'100%',
         alignItems:'right',
-        padding:10
+        padding:10,
+        height:50, 
+        alignItems:'center'
     },
 
     allTasks:{
@@ -300,6 +312,12 @@ const styles = StyleSheet.create({
         alignItems:'center',
         marginTop:50,
         width:'100%'
+    },
+
+    headerAddTask:{
+        width:'100%',
+        flexDirection:"row",
+        justifyContent:'space-evenly'
     },
 
     addTask:{
