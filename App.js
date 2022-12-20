@@ -12,9 +12,9 @@ export default function App() {
   return (
     <NavigationContainer>
       <Tab.Navigator>
-        <Tab.Screen name = "Home">{()=><HomeNavigation/>}</Tab.Screen>
-        <Tab.Screen name = "Lists">{()=><ListsNavigation/>}</Tab.Screen>
-        <Tab.Screen name = "Calendar">{()=><Calendar/>}</Tab.Screen>
+        <Tab.Screen name = "Home" options={{headerShown:false,unmountOnBlur:true}} >{()=><HomeNavigation/>}</Tab.Screen>
+        <Tab.Screen name = "Lists" options={{headerShown:false,unmountOnBlur:true}}>{()=><ListsNavigation/>}</Tab.Screen>
+        <Tab.Screen name = "Calendar" options={{headerShown:false,unmountOnBlur:true}}>{()=><Calendar/>}</Tab.Screen>
       </Tab.Navigator>
     </NavigationContainer>
   );
