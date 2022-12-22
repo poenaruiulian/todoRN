@@ -196,15 +196,13 @@ export function SpecificList({route,navigation}){
   const [tasks, setTasks] = useState([])
     if(tasks[0]==null){
         getData("tasks").then((res)=>{
-
-            if(res[0]!=null){setTasks(res)}
-            console.log(res)
+            if(res[0]!=null||tasks!=res){setTasks(res)}
         })
     }
 
     const [newTask, setNewTask] = useState({
         name:"",
-        planned:"",
+        planned:"None",
         list:"",
         addedDate:GetTodayDate(),
         id:0
@@ -234,7 +232,7 @@ export function SpecificList({route,navigation}){
                                 setValue(text)
                                 setNewTask({
                                     name:text,
-                                    planned:"",
+                                    planned:"None",
                                     list:route.params.name,
                                     addedDate:newTask.addedDate,
                                     id:taskNumber+1
