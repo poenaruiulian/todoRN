@@ -37,7 +37,6 @@ function dealDeletion(id,values,setValues,key){
     }
     storeData(key,valuesC)
     getData(key).then((res)=>{setValues(res)})
-    console.log(values)
 }
 function dealCompletion(id,tasks,setTasks){
     
@@ -124,16 +123,14 @@ export function Home({navigation}){
 
     const [tasks, setTasks] = useState([])
         getData("tasks").then((res)=>{
-            console.log(res,"\n",tasks)
             if(res[0]!=null && tasks[0]==null){setTasks(res)}
             else if(res.length!=tasks.length){setTasks(res)}
-            console.log(res)
         })
     
 
     const [newTask, setNewTask] = useState({
         name:"",
-        planned:"",
+        planned:"None",
         list:"None",
         addedDate:GetTodayDate(),
         id:0
@@ -156,7 +153,7 @@ export function Home({navigation}){
                                 setValue(text)
                                 setNewTask({
                                     name:text,
-                                    planned:"",
+                                    planned:"None",
                                     list:"None",
                                     addedDate:newTask.addedDate,
                                     id:taskNumber+1
@@ -207,7 +204,9 @@ export function Home({navigation}){
                                 </Drawer>
                                 <Spacer height={5}/>
                                 <View style={styles.chips}>
-                                    <Chip name={e.list}/>
+                                    <Chip name={e.list} color="green"/>
+                                    <View><Text> </Text></View>
+                                    <Chip name={e.planned} color="#144bb3"/>
                                 </View>
 
                                 <Spacer height={15}/>
@@ -324,6 +323,11 @@ const styles = StyleSheet.create({
         width:"70%",
         borderBottomWidth:2,
 
+    }, 
+
+    chips:{
+        flexDirection:'row',
+        gap:10
     }
 
 })
