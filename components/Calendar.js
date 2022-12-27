@@ -1,8 +1,7 @@
 import {View, Text, Drawer, Colors} from 'react-native-ui-lib';
-import {Calendar, CalendarUtils} from 'react-native-calendars';
-import { StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import {Calendar} from 'react-native-calendars';
+import { TextInput, TouchableOpacity, ScrollView } from 'react-native';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import SelectDropdown from 'react-native-select-dropdown'
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -10,6 +9,18 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useState } from 'react';
 
 import Spacer from './Spacer';
+import EditTabTasks from './EditTabTasks';
+import { 
+  GetDateForCalendar,
+  GetTodayDate,
+  dealDeletion,
+ dealCompletion,
+  storeData,
+  storeTaskId,
+  getData,
+  getTaskId } from '../helpers/functions';
+import { styles} from '../helpers/styles';
+
 
 Colors.loadColors({
   delete:'#f54e42',
@@ -18,92 +29,6 @@ Colors.loadColors({
 })
 
 const Stack = createNativeStackNavigator()
-
-function GetTodayDate(){
-  const day = new Date().getDate()
-  const month = new Date().getMonth()+1
-  const year = new Date().getFullYear()
-
-  const date = {day,month,year}
-  return date
-}
-
-function GetDateForCalendar(date){
-  const newDate = new Date(date)
-  return CalendarUtils.getCalendarDateString(newDate)
-}
-
-function dealDeletion(id,values,setValues,key){
-    
-  let valuesC = []
-  for(let i=0;i<values.length;i++){
-      if(id != values[i].id){
-          valuesC=[...valuesC,values[i]]
-      }
-  }
-  storeData(key,valuesC)
-  getData(key).then((res)=>{setValues(res)})
-}
-function dealCompletion(id,tasks,setTasks){
-  
-  let complTsk = {}
-  for(let i=0;i<tasks.length;i++){
-      if(id == tasks[i].id){
-          complTsk=tasks[i]
-          break
-      }
-  }
-  
-  complTsk.addedDate = GetTodayDate()
-  getData("completedTasks").then((res)=>{
-      storeData("completedTasks", [...res,complTsk])
-  })
-  
-  let tasksC = []
-  for(let i=0;i<tasks.length;i++){
-      if(id != tasks[i].id){
-          tasksC=[...tasksC,tasks[i]]
-      }
-  }
-  storeData("tasks",tasksC)
-  getData("tasks").then((res)=>{setTasks(res)})
-}
-
-
-const storeData = async (key,value) => {
-  try {
-    const jsonValue = JSON.stringify(value)
-    await AsyncStorage.setItem(key, jsonValue)
-  } catch (e) {
-    alert(e)
-  }
-}
-const storeTaskId = async(key,value) =>{
-  try{
-      await AsyncStorage.setItem(key, String(value))
-  } catch (e) {
-      alert(e)
-  }
-}
-const getData = async (key) => {
-  try {
-    const jsonValue = await AsyncStorage.getItem(key)
-    return jsonValue != null ? JSON.parse(jsonValue) : [];
-  } catch(e) {
-    alert(e)
-  }
-}
-const getTaskId = async (key) =>{
-  try{
-      const value = await AsyncStorage.getItem(key)
-      return value!=null ? value : 0 
-  } catch(e) {
-      alert(e)
-  }
-}
-
-
-
 
 export function CalendarScreen({navigation}) {
 
@@ -119,10 +44,16 @@ export function CalendarScreen({navigation}) {
   const today = GetTodayDate().year+"-"+GetTodayDate().month+"-"+GetTodayDate().day
   const [date, setDate]= useState(today)
 
-  
+  const [visibility, setVisibility] = useState('none')
+  const [visibilityCTB, setVisibilityCTB] = useState('flex')
+
+  const [itemToChange, setItemToChange] = useState({
+    name:"",
+    id:0,
+  })
 
     return (
-      <View style={styles.container}>
+      <View style={styles.containerCalendar}>
         <Calendar 
           style={styles.calendar}
 
@@ -167,8 +98,7 @@ export function CalendarScreen({navigation}) {
                                   {text: 'Delete',background:Colors.delete, onPress:()=> {
                                       dealDeletion(e.id,tasks,setTasks,"tasks")
                                       }
-                                  },
-                                  {text:'Edit', background:Colors.edit}
+                                  }
                               ]}
                               leftItem={
                                   {text: 'Done',background:Colors.done, onPress: () => {
@@ -192,14 +122,13 @@ export function CalendarScreen({navigation}) {
             })}
 
             <Spacer height={50}/>
-
           </ScrollView>
         </View>
 
       </View>
     );
 }
-export function SelectedDate({route}){
+export function SelectedDate({route,navigation}){
 
   const [tasks, setTasks] = useState([])
   getData("tasks").then((res)=>{
@@ -234,59 +163,75 @@ export function SelectedDate({route}){
     })
   }
 
+  const [visibility, setVisibility] = useState('none')
+  const [visibilityCTB, setVisibilityCTB] = useState('flex')
+
+  const [itemToChange, setItemToChange] = useState({
+    name:"",
+    id:0,
+  })
+
 
   return(
     <View style={[styles.container,{alignItems:'center'}]}>
-      <Text style={{fontSize:24, fontWeight:'bold'}}>{route.params.date.day}  {route.params.date.month}  {route.params.date.year}</Text>
+
+      <View style={styles.header}>
+          <TouchableOpacity onPress={()=>{navigation.push("Calendar")}}>
+            <Text style={{fontSize:24}}>Back</Text>
+          </TouchableOpacity>
+          <Text style={{fontSize:24, fontWeight:'bold'}}>{route.params.date.day}  {route.params.date.month}  {route.params.date.year}</Text>
+      </View>
       
       <Spacer height={40}/>
       
-      <View style={styles.headerAddTask}>
-                    <TextInput style={styles.addTask}
-                        placeholder="Add task"
-                        value={value}
-                        onChangeText={
-                            text =>
-                            {
-                                setValue(text)
-                                setNewTask({
-                                    name:text,
-                                    planned:route.params.date.year+"-"+route.params.date.month+"-"+route.params.date.day,
-                                    list:"None",
-                                    addedDate:newTask.addedDate,
-                                    id:taskNumber+1
-                                })
-                            } 
-                        }
-                    />
+      <View style={[styles.headerAddTask,{flexDirection:"column",alignItems:"center"}]}>
+        <TextInput 
+          style={styles.addTask}
+          placeholder="Add task"
+          value={value}
+          onChangeText={
+            text =>
+              {
+                setValue(text)
+                setNewTask({
+                  name:text,
+                  planned:route.params.date.year+"-"+route.params.date.month+"-"+route.params.date.day,
+                  list:"None",
+                  addedDate:newTask.addedDate,
+                  id:taskNumber+1
+                })
+              } 
+          }
+        />
 
-                    <SelectDropdown
-                      data={lists}
-                    
-                      defaultValue={lists[0]}
+        <SelectDropdown
+          data={lists}
+          defaultValue={lists[0]}
 
-                      onSelect={(selectedItem) => {
-                        setNewTask({
-                            name:newTask.name,
-                            planned:newTask.planned,
-                            list:selectedItem,
-                            addedDate:newTask.addedDate,
-                            id:newTask.id
-                        })
-                      }}
+          onSelect={
+            (selectedItem) => {
+              setNewTask(
+                {
+                  name:newTask.name,
+                  planned:newTask.planned,
+                  list:selectedItem,
+                  addedDate:newTask.addedDate,
+                  id:newTask.id
+                })
+            }}
+        />
 
-                    />
-                    <TouchableOpacity onPress={()=>{
-                        
-                        storeData("tasks", [...tasks,newTask] )
-                        getData("tasks").then((res)=>{setTasks(res)})
-                        //setTasks([...tasks,newTask])
-                        setNewTask({name:"",planned:"",list:"",addedDate:GetTodayDate(),id:0})
-                        storeTaskId("taskID",taskNumber+1)
-                        getData("taskID").then((res)=>{setTaskNumber(Number(res))})
-                        setValue('')
-                        
-                    }}><Text>Add</Text></TouchableOpacity>
+        <TouchableOpacity 
+          onPress={()=>{
+            storeData("tasks", [...tasks,newTask] )
+            getData("tasks").then((res)=>{setTasks(res)})
+            setNewTask({name:"",planned:"",list:"",addedDate:GetTodayDate(),id:0})
+            storeTaskId("taskID",taskNumber+1)
+            getData("taskID").then((res)=>{setTaskNumber(Number(res))})
+            setValue('')
+         }}>
+          <Text>Add</Text>
+        </TouchableOpacity>
       </View>
 
       <Spacer height={40}/>
@@ -306,7 +251,16 @@ export function SelectedDate({route}){
                                     dealDeletion(e.id,tasks,setTasks,"tasks")
                                     }
                                 },
-                                {text:'Edit', background:Colors.edit}
+                                {text:'Edit', background:Colors.edit,onPress: ()=>{
+                                          
+                                  setItemToChange({
+                                    name:e.name,
+                                    id:e.id,
+                                  })
+
+                                  setVisibility('flex')
+                                  setVisibilityCTB('none')
+                              }}
                             ]}
                             leftItem={
                                 {text: 'Done',background:Colors.done, onPress: () => {
@@ -332,6 +286,16 @@ export function SelectedDate({route}){
           <Spacer height={50}/>
 
       </ScrollView>
+      <View>
+        <EditTabTasks 
+          display={visibility} 
+          id={itemToChange.id} 
+          name={itemToChange.name} 
+          setTasks={setTasks} 
+          setVisibility={setVisibility}
+          setVisibilityCTB={setVisibilityCTB}
+        />
+      </View>
 
     
     </View>
@@ -343,45 +307,9 @@ export default function CalendarNavigation(){
 
   return(
     <Stack.Navigator>
-      <Stack.Screen name="Calendar" component={CalendarScreen} options={{headerShown:false,gestureEnabled: false}}/>
-      <Stack.Screen name="Selected Date" component={SelectedDate} options={{headerShown:false}}/>
+      <Stack.Screen name="Calendar" component={CalendarScreen} options={{headerShown:false,gestureEnabled: false, }}/>
+      <Stack.Screen name="Selected Date" component={SelectedDate} options={{headerShown:false,gestureEnabled: false}}/>
     </Stack.Navigator>
   )
 
 }
-
-
-const styles = StyleSheet.create({
-
-  container:{
-    flex:1,
-    marginTop:50,
-    width:"100%"
-  },
-
-  calendar:{
-    width:"90%",
-    alignSelf:"center",
-  },
-
-  headerAddTask:{
-    width:'100%',
-    //flexDirection:"row",
-    alignItems:"center"
-  },
-
-  addTask:{
-    width:"70%",
-    borderBottomWidth:2,
-  },
-
-  allTasks:{
-    flex:1,
-    alignItems:'center',
-    marginTop:50,
-    width:'100%'
-  },
-
-
-})
-  

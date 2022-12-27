@@ -27,7 +27,8 @@
     "react-native-safe-area-context": "4.4.1",
     "react-native-screens": "~3.18.0",
     "react-native-select-dropdown": "^3.1.0",
-    "react-native-ui-lib": "^6.25.0"
+    "react-native-ui-lib": "^6.25.0",
+    "react-native-wheel-pick": "^1.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
