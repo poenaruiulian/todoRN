@@ -1,13 +1,23 @@
 import {View, Text, Drawer, Colors} from 'react-native-ui-lib';
-import { ScrollView,TextInput,StyleSheet, TouchableOpacity} from 'react-native'
+import { ScrollView,TextInput, TouchableOpacity} from 'react-native'
 import {useState} from 'react'
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Spacer from './Spacer';
 import Chip from './Chip';
+
+import {
+    storeData, 
+    storeTaskId, 
+    getData, 
+    getTaskId, 
+    GetTodayDate,
+    dealCompletion, 
+    dealDeletion, 
+    dealUncomplition} from "../helpers/functions"
+import { styles } from '../helpers/styles';
+import EditTabTasks from './EditTabTasks';
 
 const Stack = createNativeStackNavigator()
 
@@ -16,107 +26,6 @@ Colors.loadColors({
     done:'#6da352',
     edit:'#6fb2d6'
 })
-
-function GetTodayDate(){
-    const day = new Date().getDate()
-    const month = new Date().getMonth()+1
-    const year = new Date().getFullYear()
-
-    const date = {day,month,year}
-    return date
-}
-
-
-function dealDeletion(id,values,setValues,key){
-    
-    let valuesC = []
-    for(let i=0;i<values.length;i++){
-        if(id != values[i].id){
-            valuesC=[...valuesC,values[i]]
-        }
-    }
-    storeData(key,valuesC)
-    getData(key).then((res)=>{setValues(res)})
-}
-function dealCompletion(id,tasks,setTasks){
-    
-    let complTsk = {}
-    for(let i=0;i<tasks.length;i++){
-        if(id == tasks[i].id){
-            complTsk=tasks[i]
-            break
-        }
-    }
-    
-    complTsk.addedDate = GetTodayDate()
-    getData("completedTasks").then((res)=>{
-        storeData("completedTasks", [...res,complTsk])
-    })
-    
-    let tasksC = []
-    for(let i=0;i<tasks.length;i++){
-        if(id != tasks[i].id){
-            tasksC=[...tasksC,tasks[i]]
-        }
-    }
-    storeData("tasks",tasksC)
-    getData("tasks").then((res)=>{setTasks(res)})
-}
-function dealUncomplition(id, completedTasks, setCompletedTasks){
-    let unComplTsk = {}
-    for(let i=0;i<completedTasks.length;i++){
-        if(id == completedTasks[i].id){
-            unComplTsk=completedTasks[i]
-            break
-        }
-    }
-
-    getData("tasks").then((res)=>{
-        storeData("tasks", [...res, unComplTsk])
-    })
-
-    let completedTasksC = []
-    for(let i=0;i<completedTasks.length;i++){
-        if(id != completedTasks[i].id){
-            completedTasksC=[...completedTasksC,completedTasks[i]]
-        }
-    }
-    storeData("completedTasks", completedTasksC)
-    getData("completedTasks").then((res)=>{setCompletedTasks(res)})
-}
-
-
-const storeData = async (key,value) => {
-    try {
-      const jsonValue = JSON.stringify(value)
-      await AsyncStorage.setItem(key, jsonValue)
-    } catch (e) {
-      alert(e)
-    }
-}
-const storeTaskId = async(key,value) =>{
-    try{
-        await AsyncStorage.setItem(key, String(value))
-    } catch (e) {
-        alert(e)
-    }
-}
-const getData = async (key) => {
-    try {
-      const jsonValue = await AsyncStorage.getItem(key)
-      return jsonValue != null ? JSON.parse(jsonValue) : [];
-    } catch(e) {
-      alert(e)
-    }
-}
-const getTaskId = async (key) =>{
-    try{
-        const value = await AsyncStorage.getItem(key)
-        return value!=null ? value : 0 
-    } catch(e) {
-        alert(e)
-    }
-}
 
 
 export function Home({navigation}){
@@ -140,6 +49,14 @@ export function Home({navigation}){
     if(taskNumber == 0){getTaskId("taskID").then((res)=>{setTaskNumber(Number(res))})}
 
     const [value, setValue] = useState('')
+
+    const [visibility, setVisibility] = useState('none')
+    const [visibilityCTB, setVisibilityCTB] = useState('flex')
+
+    const [itemToChange, setItemToChange] = useState({
+      name:"",
+      id:0,
+    })
 
     return (
         <View style={styles.container}>
@@ -186,7 +103,16 @@ export function Home({navigation}){
                                             dealDeletion(e.id,tasks,setTasks,"tasks")
                                             }
                                         },
-                                        {text:'Edit', background:Colors.edit}
+                                        {text:'Edit', background:Colors.edit, onPress: ()=>{
+                                          
+                                            setItemToChange({
+                                              name:e.name,
+                                              id:e.id,
+                                            })
+  
+                                            setVisibility('flex')
+                                            setVisibilityCTB('none')
+                                        }}
                                     ]}
                                     leftItem={
                                         {text: 'Done',background:Colors.done, onPress: () => {
@@ -217,7 +143,17 @@ export function Home({navigation}){
                <Spacer height={50}/>
 
             </ScrollView>
-            <View style={styles.completedTasks}>
+            <View>
+                <EditTabTasks 
+                    display={visibility} 
+                    id={itemToChange.id} 
+                    name={itemToChange.name} 
+                    setTasks={setTasks} 
+                    setVisibility={setVisibility}
+                    setVisibilityCTB={setVisibilityCTB}
+                />
+            </View>
+            <View style={[styles.completedTasks, {display:visibilityCTB}]}>
                 <TouchableOpacity onPress={()=>{
                     navigation.push("Tasks completed")
                     }
@@ -289,45 +225,3 @@ export default function HomeNavigation(){
     )
 
 }
-
-const styles = StyleSheet.create({
-
-    container:{
-        flex:1,
-        alignItems:'center',
-        marginTop:50,
-    },
-
-    completedTasks:{
-        width:'100%',
-        alignItems:'right',
-        padding:10,
-        height:50, 
-        alignItems:'center'
-    },
-
-    allTasks:{
-        flex:1,
-        alignItems:'center',
-        marginTop:50,
-        width:'100%'
-    },
-
-    headerAddTask:{
-        width:'100%',
-        flexDirection:"row",
-        justifyContent:'space-evenly'
-    },
-
-    addTask:{
-        width:"70%",
-        borderBottomWidth:2,
-
-    }, 
-
-    chips:{
-        flexDirection:'row',
-        gap:10
-    }
-
-})
