@@ -15,18 +15,18 @@ It contains three screens(as you can see below): **Home** , **Lists** and **Cale
 
 All the tasks appear on the **Home** screen, even if the task is created in other screens. The user have the possibility to add new tasks from the home screen, but they will not be attributed to the list or planned to a specific date. 
 <div style="flex-direction:row">
-  <img src="./readmeImages/addtask1.PNG" width="288" height="512">
-  <img src="./readmeImages/addtask2.PNG" width="288" height="512">
-  <img src="./readmeImages/addtask3.PNG" width="288" height="512">
+  <img src="./readmeImages/addtask1.PNG" width="270" height="512">
+  <img src="./readmeImages/addtask2.PNG" width="270" height="512">
+  <img src="./readmeImages/addtask3.PNG" width="270" height="512">
 <div>
 <br>
 
 Although the user can edit the tasks(name, list and/or a planned day) by swiping the task to the *right* and press on the **Edit** button:
 
 <div style="flex-direction:row">
-  <img src="./readmeImages/task2.PNG" width="288" height="512">
-  <img src="./readmeImages/edittask1.PNG" width="288" height="512">
-  <img src="./readmeImages/edittask2.PNG" width="288" height="512">
+  <img src="./readmeImages/task2.PNG" width="270" height="512">
+  <img src="./readmeImages/edittask1.PNG" width="270" height="512">
+  <img src="./readmeImages/edittask2.PNG" width="270" height="512">
 <div>
 <br>
 
@@ -78,9 +78,9 @@ To acces the list the user needs to swipe *left* and press the **Open** button. 
 
 Also the user can **Edit** or **Delete** the list, the same way as he would edit or delete a task:
 <div style="flex-direction:row">
-  <img src="./readmeImages/list2.PNG" width="288" height="512">
-  <img src="./readmeImages/editlist1.PNG" width="288" height="512">
-  <img src="./readmeImages/list3.PNG" width="288" height="512">
+  <img src="./readmeImages/list2.PNG" width="270" height="512">
+  <img src="./readmeImages/editlist1.PNG" width="270" height="512">
+  <img src="./readmeImages/list3.PNG" width="270" height="512">
 <div>
 <br>
   
@@ -104,9 +104,9 @@ A nice feature of the application is the possibility to plan tasks. This can be 
 By selecting any day the user can see what tasks are planned in that specific date.
 
 <div style="flex-direction:row">
-  <img src="./readmeImages/calendar1.PNG" width="288" height="512">
-  <img src="./readmeImages/calendar2.PNG" width="288" height="512">
-  <img src="./readmeImages/calendar3.PNG" width="288" height="512">
+  <img src="./readmeImages/calendar1.PNG" width="270" height="512">
+  <img src="./readmeImages/calendar2.PNG" width="270" height="512">
+  <img src="./readmeImages/calendar3.PNG" width="270" height="512">
 </div>
 <br> 
   
