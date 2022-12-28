@@ -115,6 +115,6 @@ The *dark blue* dot is the dot for selected date. The other dot is also for sele
 Below is a presentation of the **Lists** screen:
 
 <img src="./readmeImages/calendarpres.gif" width="288" height="512">
-<br> 
+<br><br><br> 
   
 ` If you want to try the application and find some bugs please let me know. Also if you want to see something in the app, let me know. `  
