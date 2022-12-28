@@ -33,7 +33,7 @@ export default function EditTabTasks({display, id, setTasks, setVisibility, name
     }
     
     return (
-      <View  style={[styles.edit,{display:display,height:'65%'}]}>
+      <View  style={[styles.edit,{display:display,height:'75%'}]}>
         <Spacer height={10}/>
         <Text style={{
           fontSize:24,
