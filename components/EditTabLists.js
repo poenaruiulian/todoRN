@@ -1,5 +1,5 @@
 import ColorPalette from 'react-native-color-palette'
-import { Text,TouchableOpacity,View  } from 'react-native'
+import { Text,TouchableOpacity,View,Image  } from 'react-native'
 
 import { useState } from 'react'
 
@@ -13,12 +13,13 @@ export default function EditTabLists({display, id, setLists, setVisibility, name
     const [color, setColor] = useState('transparent')
     
     return (
-      <View  style={[styles.edit,{display:display}]}>
+      <View  style={[styles.edit,{display:display,height:"30%"}]}>
         <Text style={{
           fontSize:24,
           marginTop:5
         }}>{name}</Text>
         <View>
+        <Spacer height={20}/>
         <ColorPalette
             scaleToWindow={true}
             titleStyles={{display:'none'}}
@@ -41,7 +42,7 @@ export default function EditTabLists({display, id, setLists, setVisibility, name
             }}
             
             value={color}
-            colors={['transparent','white', '#f04422', '#f0b222', '#3ea363', '#3e79a3', '#7c3ea3']}
+            colors={['transparent','white', '#f27059', '#f7b267', '#6a994e', '#3a6ea5', '#a06cd5']}
             icon ={
               <Text>✔</Text>
             }
@@ -52,7 +53,7 @@ export default function EditTabLists({display, id, setLists, setVisibility, name
           setVisibility('none')
           setColor("transparent")
           }}>
-          <Text>Done</Text>
+          <Image style={{height:40,width:40}} source={require("../images/icons/edit.png")}/>
         </TouchableOpacity>
       </View>
     )

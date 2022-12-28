@@ -1,4 +1,4 @@
-import { Text,TouchableOpacity,View,TextInput  } from 'react-native'
+import { Text,TouchableOpacity,View,TextInput,Image  } from 'react-native'
 import SelectDropdown from 'react-native-select-dropdown'
 import { DatePicker } from 'react-native-wheel-pick'
 
@@ -8,7 +8,6 @@ import { styles } from '../helpers/styles'
 import { getData,storeData } from '../helpers/functions'
 
 import Spacer from './Spacer'
-import object from 'react-native-ui-lib/src/style/colorName'
 
 export default function EditTabTasks({display, id, setTasks, setVisibility, name, setVisibilityCTB}){
 
@@ -34,19 +33,20 @@ export default function EditTabTasks({display, id, setTasks, setVisibility, name
     }
     
     return (
-      <View  style={[styles.edit,{display:display,height:'50%'}]}>
+      <View  style={[styles.edit,{display:display,height:'65%'}]}>
+        <Spacer height={10}/>
         <Text style={{
           fontSize:24,
-          marginTop:5
+          marginTop:5,
+          fontWeight:'bold'
         }}>{name}</Text>
 
         <Spacer height={30}/>
         
         <View style={styles.editBody}>
-
-            
-            <View>
+            <View style={{width:"100%"}}>
                 <TextInput
+                    style={styles.renameTask}
                     placeholder='Rename task'
                     value={value}
                     onChangeText={text=>{
@@ -56,21 +56,26 @@ export default function EditTabTasks({display, id, setTasks, setVisibility, name
                 />
             </View>
             <Spacer height={10} />
-            <SelectDropdown
-                data={lists}
-                        
-                defaultValue={lists[0]}
+            <View style={styles.drpView}>
+              <Text style={{fontSize:20}}>Select list:  </Text>
+              <SelectDropdown
+                  buttonStyle={styles.dropdown}
+                  data={lists}
+                          
+                  defaultValue={lists[0]}
 
-                onSelect={(selectedItem) => {
-                    setNewList(selectedItem)
+                  onSelect={(selectedItem) => {
+                      setNewList(selectedItem)
 
-                }}
-            />
+                  }}
+              />
+            </View>
             <Spacer height={10} />
+            <Text style={{fontSize:20}}>Select a date:</Text>
+            <Spacer height={5} />
             <DatePicker
-                style={{ backgroundColor: 'white', width: "60%", height:"50%" }} 
+                style={styles.dataPicker} 
                 onDateChange={date => {
-
 
                     let anotherDate = new Date(date)
 
@@ -94,7 +99,7 @@ export default function EditTabTasks({display, id, setTasks, setVisibility, name
 
         </View>
         <Spacer height={20}/>
-        <TouchableOpacity  onPress={()=>{
+        <TouchableOpacity onPress={()=>{
 
         getData("tasks").then((res)=>{
             for(let i=0;i<res.length;i++){
@@ -118,8 +123,10 @@ export default function EditTabTasks({display, id, setTasks, setVisibility, name
           setNewName("")
           setValue("")
           }}>
-          <Text>Done</Text>
+          <Image style={{height:40,width:40}} source={require("../images/icons/edit.png")}/>
         </TouchableOpacity>
+
+        <Spacer height={20}/>
       </View>
     )
   }

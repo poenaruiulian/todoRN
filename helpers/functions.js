@@ -57,10 +57,14 @@ function GetTodayDate(){
     const date = {day,month,year}
     return date
 }
+//function GetTodayDate was written for the sorting feature which was not added in the end
+
 function GetDateForCalendar(date){
     const newDate = new Date(date)
     return CalendarUtils.getCalendarDateString(newDate)
-  }
+}
+//the above function was written to have the selected date in the calendar marked
+//the calendar componend had a bug and needed some sort of marking system for the selected date
 
 function dealDeletion(id,values,setValues,key){
     
@@ -72,7 +76,7 @@ function dealDeletion(id,values,setValues,key){
     }
     storeData(key,valuesC)
     getData(key).then((res)=>{setValues(res)})
-}
+}//delete a value from the asinq storage
 function dealCompletion(id,tasks,setTasks){
     
     let complTsk = {}
@@ -97,7 +101,10 @@ function dealCompletion(id,tasks,setTasks){
     storeData("tasks",tasksC)
     getData("tasks").then((res)=>{setTasks(res)})
 }
+//completes a task by adding to the list with completed tasks and delete it from the tasks list
+//an improvement for this is to add at the task object another value:completed/uncompleted and change that only
 function dealUncomplition(id, completedTasks, setCompletedTasks){
+
     let unComplTsk = {}
     for(let i=0;i<completedTasks.length;i++){
         if(id == completedTasks[i].id){
@@ -118,7 +125,7 @@ function dealUncomplition(id, completedTasks, setCompletedTasks){
     }
     storeData("completedTasks", completedTasksC)
     getData("completedTasks").then((res)=>{setCompletedTasks(res)})
-}
+}//opposite off above
 function dealListDeletion(id,lists,setLists,key){
     let listName = ""
     for(let i=0;i<lists.length;i++){
@@ -146,7 +153,7 @@ function dealListDeletion(id,lists,setLists,key){
     }
     storeData(key,valuesC)
     getData(key).then((res)=>{setLists(res)})
-}
+}//delete a specific list 
 
 export {
     storeData, 
