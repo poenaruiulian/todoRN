@@ -117,4 +117,4 @@ Below is a presentation of the **Lists** screen:
 <img src="./readmeImages/calendarpres.gif" width="288" height="512">
 <br><br><br> 
   
-` If you want to try the application and find some bugs please let me know. Also if you want to see something in the app, let me know. `  
+` If you want to try the application and find some bugs please let me know. Also if you want to see something in the app, let me know. And sorry for the slow gifs.`  
