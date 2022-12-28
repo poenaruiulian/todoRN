@@ -45,7 +45,7 @@ Or he can complete the task by swiping *left* and pressing **Done**:
 <div>
 <br>
   
-All the completed tasks are accessible by pressing the button at the end of the page. The user will be redirected to the **Completed tasks** screen, where he can see his project.
+All the completed tasks are accessible by pressing the button at the end of the page. The user will be redirected to the **Completed tasks** screen, where he can see his nice and done tasks.
 
 <div style="flex-direction:row">
   <img src="./readmeImages/completedtasks.PNG" width="288" height="512">
@@ -88,8 +88,33 @@ Below is a presentation of the **Lists** screen:
 
 <img src="./readmeImages/listspres.gif" width="288" height="512">
 <br> 
+
+---
+
+# Calendar Screen
   
+A nice feature of the application is the possibility to plan tasks. This can be done in the **Calendar** screen by selecting the day you want to add task, pressing the calendar button on the screen(which will redirect the user to the tasks screen of that day) and adding a new task.
   
+<div style="flex-direction:row">
+  <img src="./readmeImages/calendarscreen.PNG" width="288" height="512">
+  <img src="./readmeImages/taskofday.PNG" width="288" height="512">
+<div>
+<br>
   
+By selecting any day the user can see what tasks are planned in that specific date.
+
+<div style="flex-direction:row">
+  <img src="./readmeImages/calendar1.PNG" width="288" height="512">
+  <img src="./readmeImages/calendar2.PNG" width="288" height="512">
+  <img src="./readmeImages/calendar3.PNG" width="288" height="512">
+</div>
+<br> 
   
+The *dark blue* dot is the dot for selected date. The other dot is also for selected date, but is from the component feature which was broken at the time.
+
+Below is a presentation of the **Lists** screen:
+
+<img src="./readmeImages/calendarpres.gif" width="288" height="512">
+<br> 
   
+` If you want to try the application and find some bugs please let me know. Also if you want to see something in the app, let me know. `  
