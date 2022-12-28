@@ -3,9 +3,9 @@
 The app purpose is to help you remember and keep track of your doings and help me gain some experience with React Native and Javascript.
 It contains three screens(as you can see below): **Home** , **Lists** and **Calendar**. On each screen the user can create different tasks, edit those tasks, complete or delete them.
 <div style="flex-direction:row">
-  <img src="./readmeImages/homescreen.PNG" width="288" height="512">
-  <img src="./readmeImages/listsscreen.PNG" width="288" height="512">
-  <img src="./readmeImages/calendarscreen.PNG" width="288" height="512">
+  <img src="./readmeImages/homescreen.PNG" width="270" height="512">
+  <img src="./readmeImages/listsscreen.PNG" width="270" height="512">
+  <img src="./readmeImages/calendarscreen.PNG" width="270" height="512">
 <div>
 <br>
 
