@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
 
     renameTask:{
         width:300,
-        height:30,
+        height:50,
         borderBottomWidth:2,
         borderRadius:5,
         padding:10,

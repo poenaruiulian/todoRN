@@ -13,7 +13,7 @@ export default function EditTabLists({display, id, setLists, setVisibility, name
     const [color, setColor] = useState('transparent')
     
     return (
-      <View  style={[styles.edit,{display:display,height:"30%"}]}>
+      <View  style={[styles.edit,{display:display,height:"30%",backgroundColor:"transparent"}]}>
         <Text style={{
           fontSize:24,
           marginTop:5
