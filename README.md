@@ -21,7 +21,7 @@ All the tasks appear on the **Home** screen, even if the task is created in othe
 <div>
 <br>
 
-Although the user can edit the tasks(name, list and/or a planned day) by swiping the task to the *right* and press on the **Edit** button:
+Although, the user can edit the tasks(name, list and/or a planned day) by swiping the task to the *right* and press on the **Edit** button:
 
 <div style="flex-direction:row">
   <img src="./readmeImages/task2.PNG" width="270" height="512">
@@ -56,6 +56,7 @@ Below is a presentation of the **Home** screen:
 
 <img src="./readmeImages/homepres.gif" width="288" height="512">
 <br>  
+  
 ---
 
 # Lists Screen
